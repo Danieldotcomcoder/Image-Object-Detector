@@ -26,6 +26,11 @@ The Image-Object-Detector is a web application that uses machine learning to ide
 
 `npm run dev`
 
+## Screenshot
+
+![image](https://github.com/Danieldotcomcoder/Image-Object-Detector/assets/87448628/d387164d-254b-4f34-9cdb-14bd9660edf0)
+
+
 ## Usage
 
 Once the development server is running, open your web browser and navigate to `http://localhost:5000` (or whatever port you have configured). From there, you can upload an image, and the application will process the image and display labels for detected objects.

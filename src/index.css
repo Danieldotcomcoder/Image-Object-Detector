@@ -5,6 +5,10 @@
 
 }
 
+body {
+  background-color: lightblue;
+  font-family: Verdana, Geneva, Tahoma, sans-serif;
+}
 
 .App {
   display: flex;

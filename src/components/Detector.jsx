@@ -1,20 +1,62 @@
-import { useRef, useState } from 'react';
-import {
-  pipeline,
-  env,
-} from 'https://cdn.jsdelivr.net/npm/@xenova/transformers@2.6.0';
+import { useRef, useState, useEffect } from 'react';
+import { pipeline, env } from '@xenova/transformers';
+import { client } from '@gradio/client';
 
 env.allowLocalModels = false;
+
 import img1 from '../assets/cats.jpg';
 import img2 from '../assets/image2.jpg';
 import img3 from '../assets/image3.jpg';
 import img4 from '../assets/image4.jpg';
 
 const ObjectDetection = () => {
-  const [status, setStatus] = useState('Please Upload an Image, or click on one the available images on the left to analyze');
+  const [status, setStatus] = useState(
+    'You can upload an Image, or generate an image by typing a prompt in the text box.'
+  );
+
+  const [savedUrls, setSavedUrls] = useState([img1, img2, img3, img4]);
+  const [text, setText] = useState('');
 
   const fileUpload = useRef();
   const imageContainer = useRef();
+
+  const handleImageGeneration = async () => {
+    const app = await client('ByteDance/SDXL-Lightning');
+    setStatus('Generating image...');
+    const result = await app.predict('/generate_image_1', [text, '1-Step']);
+
+    const image = document.createElement('img');
+    image.src = result.data[0].url;
+
+    imageContainer.current.innerHTML = '';
+    imageContainer.current.appendChild(image);
+    setStatus('Image generated');
+ 
+    handleSaveUrl(result.data[0].url);
+    setText('');
+    console.log(result.data[0].url);
+  };
+
+  const handleSaveUrl = (url) => {
+    const existingUrls = getSavedUrlsFromLocalStorage();
+    if (!existingUrls.includes(url)) {
+      setSavedUrls([...savedUrls, url]);
+      localStorage.setItem('savedUrls', JSON.stringify([...savedUrls, url]));
+    }
+  };
+
+  const getSavedUrlsFromLocalStorage = () => {
+    const storedUrls = localStorage.getItem('savedUrls');
+    return storedUrls ? JSON.parse(storedUrls) : [];
+  };
+
+  useEffect(() => {
+    const storedUrls = localStorage.getItem('savedUrls');
+    if (storedUrls) {
+      const parsedUrls = JSON.parse(storedUrls);
+      setSavedUrls(parsedUrls);
+    }
+  }, []);
 
   const handleFileChange = (e) => {
     const file = e.target.files[0];
@@ -27,8 +69,6 @@ const ObjectDetection = () => {
     reader.onload = (e2) => {
       const image = document.createElement('img');
       image.onload = () => {
-        console.log('Image width:', image.naturalWidth);
-        console.log('Image height:', image.naturalHeight);
         if (image.naturalWidth < 750) {
           image.style.maxWidth = image.naturalWidth;
         } else {
@@ -50,43 +90,38 @@ const ObjectDetection = () => {
   };
   const handleImageClick = (event) => {
     const imageSrc = event.currentTarget.src;
-  
-    // Create a Blob from the image source URL
+    console.log(event);
     fetch(imageSrc)
       .then((response) => response.blob())
       .then((blob) => {
         const fakeFile = new File([blob], 'image.jpg', { type: 'image/jpeg' });
-        
-        // Create a new object that mimics the structure of an event
+
         const changeEvent = {
           target: {
-            files: [fakeFile]
-          }
+            files: [fakeFile],
+          },
         };
-        
-        // Dispatch the event
+
         handleFileChange(changeEvent);
       })
       .catch((error) => {
         console.error('Error fetching image:', error);
-        // Handle any errors here
       });
-  }
-  
+  };
+
   const detect = async (file) => {
     const detector = await pipeline(
       'object-detection',
       'Xenova/detr-resnet-50'
     );
 
-    setStatus('Analysing...');
+    setStatus('Detecting objects...');
 
     const output = await detector(file.src, {
-      threshold: 0.5,
+      threshold: 0.9,
       percentage: true,
     });
-    setStatus('');
-    console.log(output);
+    setStatus('Objects detected');
 
     output.forEach(renderBox);
   };
@@ -133,33 +168,19 @@ const ObjectDetection = () => {
 
   return (
     <div className="App">
-      <div className="ImageList">
-        <img
-          className="ImageItem"
-          src={img1}
-          alt=""
-          onClick={handleImageClick}
-        />
-        <img
-          className="ImageItem"
-          src={img2}
-          alt=""
-          onClick={handleImageClick}
-        />
-        <img
-          className="ImageItem"
-          src={img3}
-          alt=""
-          onClick={handleImageClick}
-        />
-        <img
-          className="ImageItem"
-          src={img4}
-          alt=""
-          onClick={handleImageClick}
-        />
-      </div>
-      <h1>Image Object Detection</h1>
+      <ul className="ImageList">
+        <h3 className="note">Click on any Image to start detecting</h3>
+        {savedUrls.map((url) => (
+          <img
+            onClick={handleImageClick}
+            className="ImageItem"
+            src={url}
+            key={url}
+          />
+        ))}
+      </ul>
+
+      <h1>Image Generator/ Object Detector</h1>
       <p id="status">{status}</p>
       <input
         type="file"
@@ -167,6 +188,19 @@ const ObjectDetection = () => {
         ref={fileUpload}
         onChange={handleFileChange}
       />
+      <div className="generateimage">
+        <input
+          type="text"
+          placeholder="Enter text to generate Image"
+          value={text}
+          onChange={(e) => setText(e.target.value)}
+        />
+        <button className="generateimagebtn" onClick={handleImageGeneration}>
+          {' '}
+          Generate Image
+        </button>
+      </div>
+
       <div id="image-container" ref={imageContainer}></div>
     </div>
   );

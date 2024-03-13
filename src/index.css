@@ -2,12 +2,13 @@
   box-sizing: border-box;
   margin: 0;
   padding: 0;
-
+  transition: all 0.3s ease;
 }
 
+
 body {
-  background-color: lightblue;
-  font-family: Verdana, Geneva, Tahoma, sans-serif;
+  background-image: linear-gradient(to right, #4facfe 0%, #00f2fe 100%);
+  font-family: 'Roboto', sans-serif;
 }
 
 .App {
@@ -15,7 +16,7 @@ body {
   flex-direction: column;
   justify-content: center;
   align-items: center;
-
+  color: #333;
 }
 
 #image-container {
@@ -26,22 +27,25 @@ body {
   position: relative;
   width: auto;
   height: auto;
-  max-width: 750px;
-  max-height: 550px;
-  border: 1px solid black;
+  border: 1px solid transparent;
+  
 }
 
 #status {
   margin-top: 2%;
+  color: #666;
+  font-weight: 300;
 }
 
 #file-upload {
   margin-top: 2%;
+  color: #666;
 }
 
 #image-container img {
   max-width: 100%;
   max-height: 100%;
+  transition: transform 0.2s ease;
 }
 
 .ImageList {
@@ -49,14 +53,64 @@ body {
   left: 5%;
   top: 5%;
   width: 250px;
-  height: auto;
-  border: 1px solid black;
+  height: 1000px;
+  overflow-y: scroll;
+  scroll-behavior: smooth;
+
+  background-color: #9dcacc;
+  /* border: 1px solid #ccc; */
+  border-radius: 1%;
+  box-shadow: 5px 5px 5px 5px rgb(185, 82, 253, 0.2)
+  
+}
+::-webkit-scrollbar-track {
+  background: #f1f1f1;
+}
+
+input {
+  font-size: 18px;
+  padding: 10px 10px 10px 5px;
+  display: block;
+  width: 300px;
+  border: none;
+  border-radius: 3%;
+  border-bottom: 1px solid #757575;
+}
+
+.generateimage {
+  margin-top: 2%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  color: #666;
+}
+
+.generateimagebtn {
+  width: 70%;
+  background-image: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  margin-top: 5%;
+  border: none;
+  padding: 10px;
+  border-radius: 5px;
+  cursor: pointer;
+  transition: background-color 0.3s ease;
+}
+
+.generateimagebtn:hover {
+  background-image: linear-gradient(135deg,#764ba2  0%, #667eea 100%);
 }
 
 .ImageItem {
   cursor: pointer;
   width: 100%;
   height: auto;
-  border-bottom: 1px solid black;
+  border-bottom: 1px solid #ccc;
   padding: 5px;
+  margin-top: 2%;
+  transition: background-color 0.3s ease;
 }
+
+.ImageItem:hover {
+  background-color: #f9f9f9;
+}
+

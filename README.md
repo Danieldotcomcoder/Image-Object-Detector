@@ -1,6 +1,6 @@
 # Image-Object-Detector
 
-This repository contains the code for an image object detection application built with Vite, React, and Hugging Face's machine learning library for JavaScript.
+This is a React project for an image object detection application built using Hugging Face's machine learning library for JavaScript.
 
 ## Project Overview
 
